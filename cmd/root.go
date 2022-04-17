@@ -4,6 +4,7 @@ import (
 	"fmt"
 	cnf "github.com/project-ginza/notifications/config"
 	logging "github.com/project-ginza/notifications/log"
+	router "github.com/project-ginza/notifications/route"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os"
@@ -25,6 +26,13 @@ func run(cmd *cobra.Command, args []string) {
 	go loggingCh.LogWorker()
 	logLevel := cnf.GlobalConfig.LogLevel
 	setLogConfig(logLevel)
+
+	r := router.GetRouter()
+	// The application runs with port 7000.
+	if err := r.Run(":7000"); err != nil {
+		errMsg := fmt.Sprintf("Failed to run Gin Framework. %v", err)
+		loggingCh.PushErrorMessageToChannel(errMsg)
+	}
 
 	<-sigs
 }
